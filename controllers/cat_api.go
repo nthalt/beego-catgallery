@@ -214,3 +214,46 @@ func fetchFavourites(url, apiKey string, ch chan<- []Favourite) {
 
 	ch <- favourites
 }
+
+// new
+func (c *CatAPIController) AddFavourite() {
+    apiKey, _ := web.AppConfig.String("cat_api_key")
+    url := "https://api.thecatapi.com/v1/favourites"
+
+    var favorite struct {
+        ImageID string `json:"image_id"`
+    }
+    if err := json.Unmarshal(c.Ctx.Input.RequestBody, &favorite); err != nil {
+        c.Data["json"] = map[string]string{"error": "Invalid request body"}
+        c.ServeJSON()
+        return
+    }
+
+    favoriteChan := make(chan bool)
+    go submitFavorite(url, apiKey, favorite.ImageID, favoriteChan)
+
+    success := <-favoriteChan
+    if success {
+        c.Data["json"] = map[string]string{"message": "Image favorited successfully"}
+    } else {
+        c.Data["json"] = map[string]string{"error": "Failed to favorite image"}
+    }
+    c.ServeJSON()
+}
+
+func submitFavorite(url, apiKey, imageID string, ch chan<- bool) {
+    favoriteJSON, _ := json.Marshal(map[string]string{"image_id": imageID})
+    client := &http.Client{}
+    req, _ := http.NewRequest("POST", url, bytes.NewBuffer(favoriteJSON))
+    req.Header.Set("x-api-key", apiKey)
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := client.Do(req)
+    if err != nil {
+        ch <- false
+        return
+    }
+    defer resp.Body.Close()
+
+    ch <- resp.StatusCode == http.StatusOK
+}

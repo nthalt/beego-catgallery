@@ -121,20 +121,42 @@ function fetchBreedInfo(breedId) {
     .catch((error) => console.error("Error fetching breed info:", error));
 }
 
+// new
 function voteCat(imageId, value) {
-  fetch("/api/votes", {
+  if (value === "1") {
+    addFavorite(imageId);
+  } else {
+    fetch("/api/votes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image_id: imageId, value: parseInt(value) }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Vote submitted:", data);
+        fetchRandomCat(); // Load a new cat after voting
+      })
+      .catch((error) => console.error("Error voting:", error));
+  }
+}
+
+function addFavorite(imageId) {
+  fetch("/api/favourites", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ image_id: imageId, value: parseInt(value) }),
+    body: JSON.stringify({ image_id: imageId }),
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Vote submitted:", data);
-      fetchRandomCat(); // Load a new cat after voting
+      console.log("Favorite added:", data);
+      alert("Cat added to favorites!");
+      fetchRandomCat(); // Load a new cat after favoriting
     })
-    .catch((error) => console.error("Error voting:", error));
+    .catch((error) => console.error("Error adding favorite:", error));
 }
 
 function fetchFavoriteCats() {
@@ -146,7 +168,10 @@ function fetchFavoriteCats() {
       data.forEach((cat) => {
         const catElement = document.createElement("div");
         catElement.className = "fav-cat";
-        catElement.innerHTML = `<img src="${cat.image.url}" alt="Favorite cat">`;
+        catElement.innerHTML = `
+          <img src="${cat.image.url}" alt="Favorite cat">
+          <p>ID: ${cat.id}</p>
+        `;
         favCats.appendChild(catElement);
       });
     })

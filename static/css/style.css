@@ -153,6 +153,33 @@ nav ul li a {
   margin-bottom: 20px;
 }
 
+/* grid view */
+.fav-cats.grid-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.fav-cats.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fav-cat {
+  background-color: #f8f8f8;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+}
+
+.fav-cat img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+/* old */
 .fav-cats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
