@@ -87,17 +87,36 @@ function fetchBreedInfo(breedId) {
     .then((response) => response.json())
     .then((data) => {
       const breedImageSlider = document.querySelector(".breed-image-slider");
-      const breedDescription = document.querySelector(".breed-description");
+      breedImageSlider.innerHTML = "";
 
-      breedImageSlider.innerHTML = `<img src="${data.image.url}" alt="${data.name}">`;
-      breedDescription.innerHTML = `
-              <h3>${data.name}</h3>
-              <p>${data.description}</p>
-              <p><strong>Temperament:</strong> ${data.temperament}</p>
-              <p><strong>Origin:</strong> ${data.origin}</p>
-              <p><strong>Life Span:</strong> ${data.life_span} years</p>
-              <p><strong>Weight:</strong> ${data.weight.metric} kg</p>
-          `;
+      data.forEach((image) => {
+        const img = document.createElement("img");
+        img.src = image.url;
+        img.alt = "Breed image";
+        breedImageSlider.appendChild(img);
+      });
+
+      // Fetch breed details
+      fetch(`/api/breeds`)
+        .then((response) => response.json())
+        .then((breeds) => {
+          const breed = breeds.find((b) => b.id === breedId);
+          if (breed) {
+            const breedDescription =
+              document.querySelector(".breed-description");
+            breedDescription.innerHTML = `
+              <h3>${breed.name}</h3>
+              <p>${breed.description}</p>
+              <p><strong>Temperament:</strong> ${breed.temperament}</p>
+              <p><strong>Origin:</strong> ${breed.origin}</p>
+              <p><strong>Life Span:</strong> ${breed.life_span} years</p>
+              <p><strong>Weight:</strong> ${breed.weight.metric} kg</p>
+            `;
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching breed details:", error)
+        );
     })
     .catch((error) => console.error("Error fetching breed info:", error));
 }
