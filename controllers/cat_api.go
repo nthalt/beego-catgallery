@@ -51,6 +51,15 @@ type FavoriteRequest struct {
 	SubID   string `json:"sub_id"`
 }
 
+func getUserID() string {
+	userID, err := web.AppConfig.String("user_id")
+	if err != nil {
+		// If there's an error reading the user_id, return a default value
+		return "default-user"
+	}
+	return userID
+}
+
 func (c *CatAPIController) GetRandomCat() {
 	apiKey, _ := web.AppConfig.String("cat_api_key")
 	url := "https://api.thecatapi.com/v1/images/search"
@@ -151,9 +160,12 @@ func fetchBreedImages(url, apiKey string, ch chan<- []CatImage) {
 
 func (c *CatAPIController) GetFavourites() {
 	apiKey, _ := web.AppConfig.String("cat_api_key")
-	subID := c.GetString("sub_id")
+	// subID := c.GetString("sub_id")
+	subID := getUserID()
+	println("user id: ", subID)
 	url := fmt.Sprintf("https://api.thecatapi.com/v1/favourites?sub_id=%s", subID)
-
+	print("url: ", url)
+	println()
 	favouritesChan := make(chan []Favourite)
 	go fetchFavourites(url, apiKey, favouritesChan)
 
@@ -214,6 +226,9 @@ func (c *CatAPIController) AddFavourite() {
 		c.ServeJSON()
 		return
 	}
+
+	// Use the user_id from the configuration
+	favorite.SubID = getUserID()
 
 	favoriteChan := make(chan map[string]interface{})
 	go submitFavorite(url, apiKey, favorite.ImageID, favorite.SubID, favoriteChan)

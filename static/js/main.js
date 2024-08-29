@@ -96,8 +96,12 @@ function fetchBreedInfo(breedId) {
         const img = document.createElement("img");
         img.src = image.url;
         img.alt = "Breed image";
+        // img.classList.add("carousel-slide");
         breedImageSlider.appendChild(img);
       });
+
+      // Initialize carousel after images are loaded
+      initCarousel();
 
       // Fetch breed details
       fetch(`/api/breeds`)
@@ -124,15 +128,30 @@ function fetchBreedInfo(breedId) {
     .catch((error) => console.error("Error fetching breed info:", error));
 }
 
+function initCarousel() {
+  const carousel = document.querySelector(".breed-image-slider");
+  const images = carousel.querySelectorAll("img");
+  let currentIndex = 0;
+
+  images.forEach((img, index) => {
+    img.style.display = index === 0 ? "block" : "none"; // Show the first image
+  });
+
+  setInterval(() => {
+    images[currentIndex].style.display = "none"; // Hide the current image
+    currentIndex = (currentIndex + 1) % images.length; // Move to the next image
+    images[currentIndex].style.display = "block"; // Show the next image
+  }, 2000); // Change image every 3 seconds
+}
+
 // new
 function addFavorite(imageId) {
-  const subId = "user-123"; // You can generate a unique user ID or get it from a login system
   const data = {
     image_id: imageId,
-    sub_id: subId,
+    // We no longer need to send sub_id from the client
   };
 
-  console.log("Sending favorite data:", data); // Log the data being sent
+  console.log("Sending favorite data:", data);
 
   fetch("/api/favourites", {
     method: "POST",
@@ -143,14 +162,14 @@ function addFavorite(imageId) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Response from server:", data); // Log the response from the server
+      console.log("Response from server:", data);
       if (data.error) {
         console.error("Error adding favorite:", data.error);
         alert("Failed to add cat to favorites: " + data.error);
       } else {
         console.log("Favorite added:", data);
         alert("Cat added to favorites!");
-        fetchRandomCat(); // Load a new cat after favoriting
+        fetchRandomCat();
       }
     })
     .catch((error) => {
@@ -160,7 +179,7 @@ function addFavorite(imageId) {
 }
 
 function fetchFavoriteCats() {
-  fetch("/api/favourites?sub_id=user-123")
+  fetch("/api/favourites")
     .then((response) => response.json())
     .then((data) => {
       const favCats = document.querySelector(".fav-cats");
@@ -170,8 +189,8 @@ function fetchFavoriteCats() {
         catElement.className = "fav-cat";
         catElement.innerHTML = `
           <img src="${cat.image.url}" alt="Favorite cat">
-          <p>ID: ${cat.id}</p>
         `;
+        // <p>ID: ${cat.id}</p>
         favCats.appendChild(catElement);
       });
     })
