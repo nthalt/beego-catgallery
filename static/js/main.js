@@ -113,13 +113,22 @@ function fetchBreedInfo(breedId) {
               document.querySelector(".breed-description");
             breedDescription.innerHTML = `
               <h3>${breed.name}</h3>
+              <span>
+                <span><i><weak>(${breed.origin})</weak></i></span>
+                <span><i><weak>${breed.id}</weak></i></span>
+                <span class="text-sm italic font-light text-gray-500">abys</span>
+              </span>
               <p>${breed.description}</p>
-              <p><strong>Temperament:</strong> ${breed.temperament}</p>
-              <p><strong>Origin:</strong> ${breed.origin}</p>
-              <p><strong>Life Span:</strong> ${breed.life_span} years</p>
-              <p><strong>Weight:</strong> ${breed.weight.metric} kg</p>
+              <div class="footer-links"><a href="${breed.wikipedia_url}">Wikipedia</a></div>
             `;
           }
+          // <span class="text-sm text-gray-500">(${breed.origin})</span>
+          // <span class="text-sm italic font-light text-gray-500">${breed.id}</span>
+
+          // <p><strong>Temperament:</strong> ${breed.temperament}</p>
+          // <p><strong>Origin:</strong> ${breed.origin}</p>
+          // <p><strong>Life Span:</strong> ${breed.life_span} years</p>
+          // <p><strong>Weight:</strong> ${breed.weight.metric} kg</p>
         })
         .catch((error) =>
           console.error("Error fetching breed details:", error)
@@ -168,7 +177,7 @@ function addFavorite(imageId) {
         alert("Failed to add cat to favorites: " + data.error);
       } else {
         console.log("Favorite added:", data);
-        alert("Cat added to favorites!");
+        // alert("Cat added to favorites!");
         fetchRandomCat();
       }
     })

@@ -23,6 +23,7 @@ type Breed struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Wikipedia	string `json:"wikipedia_url"`
 	Temperament string `json:"temperament"`
 	Origin      string `json:"origin"`
 	LifeSpan    string `json:"life_span"`

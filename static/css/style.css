@@ -167,35 +167,37 @@ nav ul li a {
 .fav-cats.grid-view {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 5px;
 }
 
 .fav-cats.list-view {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  scroll-behavior: smooth;
+  /* gap: 10px; */
 }
 
 .fav-cat {
   background-color: #f8f8f8;
   border-radius: 5px;
-  padding: 10px;
+  /* padding: 10px; */
   text-align: center;
 }
 
 .fav-cat img {
   max-width: 100%;
-  height: auto;
+  height: 150px;
   border-radius: 5px;
 }
 
 /* old */
-.fav-cats {
+/* .fav-cats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-}
+} */
 
+/*
 .fav-cats.list-view {
   display: flex;
   flex-direction: column;
@@ -205,7 +207,7 @@ nav ul li a {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
-}
+} */
 
 /* footer section */
 footer {
