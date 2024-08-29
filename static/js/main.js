@@ -38,7 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const vote = button.dataset.vote;
       const catImage = document.querySelector(".cat-image img");
       if (catImage) {
-        voteCat(catImage.dataset.id, vote);
+        // voteCat(catImage.dataset.id, vote);
+        addFavorite(catImage.dataset.id);
       }
     });
   });
@@ -66,6 +67,7 @@ function fetchRandomCat() {
     .catch((error) => console.error("Error fetching random cat:", error));
 }
 
+// function for fetching all cat breeds and showing them as options in selector
 function fetchBreeds() {
   fetch("/api/breeds")
     .then((response) => response.json())
@@ -82,6 +84,7 @@ function fetchBreeds() {
     .catch((error) => console.error("Error fetching breeds:", error));
 }
 
+// function for fetching all cats of the selected breed
 function fetchBreedInfo(breedId) {
   fetch(`/api/breeds/${breedId}`)
     .then((response) => response.json())
@@ -122,45 +125,42 @@ function fetchBreedInfo(breedId) {
 }
 
 // new
-function voteCat(imageId, value) {
-  if (value === "1") {
-    addFavorite(imageId);
-  } else {
-    fetch("/api/votes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ image_id: imageId, value: parseInt(value) }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Vote submitted:", data);
-        fetchRandomCat(); // Load a new cat after voting
-      })
-      .catch((error) => console.error("Error voting:", error));
-  }
-}
-
 function addFavorite(imageId) {
+  const subId = "user-123"; // You can generate a unique user ID or get it from a login system
+  const data = {
+    image_id: imageId,
+    sub_id: subId,
+  };
+
+  console.log("Sending favorite data:", data); // Log the data being sent
+
   fetch("/api/favourites", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ image_id: imageId }),
+    body: JSON.stringify(data),
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Favorite added:", data);
-      alert("Cat added to favorites!");
-      fetchRandomCat(); // Load a new cat after favoriting
+      console.log("Response from server:", data); // Log the response from the server
+      if (data.error) {
+        console.error("Error adding favorite:", data.error);
+        alert("Failed to add cat to favorites: " + data.error);
+      } else {
+        console.log("Favorite added:", data);
+        alert("Cat added to favorites!");
+        fetchRandomCat(); // Load a new cat after favoriting
+      }
     })
-    .catch((error) => console.error("Error adding favorite:", error));
+    .catch((error) => {
+      console.error("Error adding favorite:", error);
+      alert("Failed to add cat to favorites: " + error.message);
+    });
 }
 
 function fetchFavoriteCats() {
-  fetch("/api/favourites")
+  fetch("/api/favourites?sub_id=user-123")
     .then((response) => response.json())
     .then((data) => {
       const favCats = document.querySelector(".fav-cats");
@@ -177,3 +177,23 @@ function fetchFavoriteCats() {
     })
     .catch((error) => console.error("Error fetching favorite cats:", error));
 }
+
+// function voteCat(imageId, value) {
+//   if (value === "1") {
+//     addFavorite(imageId);
+//   } else {
+//     fetch("/api/votes", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ image_id: imageId, value: parseInt(value) }),
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         console.log("Vote submitted:", data);
+//         fetchRandomCat(); // Load a new cat after voting
+//       })
+//       .catch((error) => console.error("Error voting:", error));
+//   }
+// }

@@ -40,10 +40,15 @@ type Vote struct {
 }
 
 type Favourite struct {
-	ID      int      `json:"id"`
-	UserID  string   `json:"user_id"`
+	ID     int      `json:"id"`
+	SubID  string   `json:"sub_id"`
 	ImageID string   `json:"image_id"`
-	Image   CatImage `json:"image"`
+	Image  CatImage `json:"image"`
+}
+
+type FavoriteRequest struct {
+	ImageID string `json:"image_id"`
+	SubID   string `json:"sub_id"`
 }
 
 func (c *CatAPIController) GetRandomCat() {
@@ -80,41 +85,6 @@ func (c *CatAPIController) GetBreedInfo() {
 
 	breedImages := <-breedImagesChan
 	c.Data["json"] = breedImages
-	c.ServeJSON()
-}
-
-func (c *CatAPIController) VoteCat() {
-	apiKey, _ := web.AppConfig.String("cat_api_key")
-	url := "https://api.thecatapi.com/v1/votes"
-
-	var vote Vote
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &vote); err != nil {
-		c.Data["json"] = map[string]string{"error": "Invalid request body"}
-		c.ServeJSON()
-		return
-	}
-
-	voteChan := make(chan bool)
-	go submitVote(url, apiKey, vote, voteChan)
-
-	success := <-voteChan
-	if success {
-		c.Data["json"] = map[string]string{"message": "Vote submitted successfully"}
-	} else {
-		c.Data["json"] = map[string]string{"error": "Failed to submit vote"}
-	}
-	c.ServeJSON()
-}
-
-func (c *CatAPIController) GetFavourites() {
-	apiKey, _ := web.AppConfig.String("cat_api_key")
-	url := "https://api.thecatapi.com/v1/favourites"
-
-	favouritesChan := make(chan []Favourite)
-	go fetchFavourites(url, apiKey, favouritesChan)
-
-	favourites := <-favouritesChan
-	c.Data["json"] = favourites
 	c.ServeJSON()
 }
 
@@ -179,21 +149,17 @@ func fetchBreedImages(url, apiKey string, ch chan<- []CatImage) {
 	ch <- images
 }
 
-func submitVote(url, apiKey string, vote Vote, ch chan<- bool) {
-	voteJSON, _ := json.Marshal(vote)
-	client := &http.Client{}
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(voteJSON))
-	req.Header.Set("x-api-key", apiKey)
-	req.Header.Set("Content-Type", "application/json")
+func (c *CatAPIController) GetFavourites() {
+	apiKey, _ := web.AppConfig.String("cat_api_key")
+	subID := c.GetString("sub_id")
+	url := fmt.Sprintf("https://api.thecatapi.com/v1/favourites?sub_id=%s", subID)
 
-	resp, err := client.Do(req)
-	if err != nil {
-		ch <- false
-		return
-	}
-	defer resp.Body.Close()
+	favouritesChan := make(chan []Favourite)
+	go fetchFavourites(url, apiKey, favouritesChan)
 
-	ch <- resp.StatusCode == http.StatusOK
+	favourites := <-favouritesChan
+	c.Data["json"] = favourites
+	c.ServeJSON()
 }
 
 func fetchFavourites(url, apiKey string, ch chan<- []Favourite) {
@@ -215,45 +181,111 @@ func fetchFavourites(url, apiKey string, ch chan<- []Favourite) {
 	ch <- favourites
 }
 
-// new
 func (c *CatAPIController) AddFavourite() {
-    apiKey, _ := web.AppConfig.String("cat_api_key")
-    url := "https://api.thecatapi.com/v1/favourites"
+	apiKey, _ := web.AppConfig.String("cat_api_key")
+	url := "https://api.thecatapi.com/v1/favourites"
 
-    var favorite struct {
-        ImageID string `json:"image_id"`
-    }
-    if err := json.Unmarshal(c.Ctx.Input.RequestBody, &favorite); err != nil {
-        c.Data["json"] = map[string]string{"error": "Invalid request body"}
-        c.ServeJSON()
-        return
-    }
+	var favorite struct {
+		ImageID string `json:"image_id"`
+		SubID   string `json:"sub_id"`
+	}
 
-    favoriteChan := make(chan bool)
-    go submitFavorite(url, apiKey, favorite.ImageID, favoriteChan)
+	// Read the raw request body
+	body, err := ioutil.ReadAll(c.Ctx.Request.Body)
+	if err != nil {
+		c.Data["json"] = map[string]string{"error": "Failed to read request body", "details": err.Error()}
+		c.ServeJSON()
+		return
+	}
 
-    success := <-favoriteChan
-    if success {
-        c.Data["json"] = map[string]string{"message": "Image favorited successfully"}
-    } else {
-        c.Data["json"] = map[string]string{"error": "Failed to favorite image"}
-    }
-    c.ServeJSON()
+	// Log the raw request body for debugging
+	fmt.Printf("Raw request body: %s\n", string(body))
+
+	// Attempt to unmarshal the JSON
+	if err := json.Unmarshal(body, &favorite); err != nil {
+		c.Data["json"] = map[string]string{"error": "Invalid JSON in request body", "details": err.Error()}
+		c.ServeJSON()
+		return
+	}
+
+	// Validate the required fields
+	if favorite.ImageID == "" {
+		c.Data["json"] = map[string]string{"error": "image_id is required"}
+		c.ServeJSON()
+		return
+	}
+
+	favoriteChan := make(chan map[string]interface{})
+	go submitFavorite(url, apiKey, favorite.ImageID, favorite.SubID, favoriteChan)
+
+	result := <-favoriteChan
+	c.Data["json"] = result
+	c.ServeJSON()
 }
 
-func submitFavorite(url, apiKey, imageID string, ch chan<- bool) {
-    favoriteJSON, _ := json.Marshal(map[string]string{"image_id": imageID})
-    client := &http.Client{}
-    req, _ := http.NewRequest("POST", url, bytes.NewBuffer(favoriteJSON))
-    req.Header.Set("x-api-key", apiKey)
-    req.Header.Set("Content-Type", "application/json")
+func submitFavorite(url, apiKey, imageID, subID string, ch chan<- map[string]interface{}) {
+	favoriteJSON, _ := json.Marshal(map[string]string{
+		"image_id": imageID,
+		"sub_id":   subID,
+	})
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(favoriteJSON))
+	req.Header.Set("x-api-key", apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
-    resp, err := client.Do(req)
-    if err != nil {
-        ch <- false
-        return
-    }
-    defer resp.Body.Close()
+	resp, err := client.Do(req)
+	if err != nil {
+		ch <- map[string]interface{}{"error": "Failed to submit favorite", "details": err.Error()}
+		return
+	}
+	defer resp.Body.Close()
 
-    ch <- resp.StatusCode == http.StatusOK
+	body, _ := ioutil.ReadAll(resp.Body)
+	var result map[string]interface{}
+	json.Unmarshal(body, &result)
+
+	// Log the response from the Cat API
+	fmt.Printf("Cat API response: %s\n", string(body))
+
+	ch <- result
 }
+
+// func (c *CatAPIController) VoteCat() {
+// 	apiKey, _ := web.AppConfig.String("cat_api_key")
+// 	url := "https://api.thecatapi.com/v1/votes"
+
+// 	var vote Vote
+// 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &vote); err != nil {
+// 		c.Data["json"] = map[string]string{"error": "Invalid request body"}
+// 		c.ServeJSON()
+// 		return
+// 	}
+
+// 	voteChan := make(chan bool)
+// 	go submitVote(url, apiKey, vote, voteChan)
+
+// 	success := <-voteChan
+// 	if success {
+// 		c.Data["json"] = map[string]string{"message": "Vote submitted successfully"}
+// 	} else {
+// 		c.Data["json"] = map[string]string{"error": "Failed to submit vote"}
+// 	}
+// 	c.ServeJSON()
+// }
+
+// func submitVote(url, apiKey string, vote Vote, ch chan<- bool) {
+// 	voteJSON, _ := json.Marshal(vote)
+// 	client := &http.Client{}
+// 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(voteJSON))
+// 	req.Header.Set("x-api-key", apiKey)
+// 	req.Header.Set("Content-Type", "application/json")
+
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		ch <- false
+// 		return
+// 	}
+// 	defer resp.Body.Close()
+
+// 	ch <- resp.StatusCode == http.StatusOK
+// }

@@ -79,10 +79,10 @@
         <div id="favs" class="tab-content">
           <div class="view-buttons">
             <button class="view-button active" data-view="grid">
-              <i class="fas fa-th"></i>
+              <i class="fas fa-th"></i> Grid
             </button>
             <button class="view-button" data-view="list">
-              <i class="fas fa-list"></i>
+              <i class="fas fa-list"></i> List
             </button>
           </div>
           <div class="fav-cats"></div>
