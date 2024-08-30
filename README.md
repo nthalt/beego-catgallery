@@ -7,6 +7,7 @@ This application uses Go channels for API calls to demonstrate concurrent proces
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Setup and Installation](#setup-and-installation)
+- [API Endpoints](#api-endpoints)
 - [Important Notes](#important-notes)
 - [Contributing](#contributing)
 
@@ -117,6 +118,15 @@ beego-catgallery/
    ```
 
 The application will be running at [http://localhost:8080](http://localhost:8080)
+
+## Api Endpoints
+
+- `GET /api/cats/random` - Fetch a random cat image.
+- `GET /api/breeds` - Retrieve a list of all cat breeds.
+- `GET /api/breeds/:id` - Get detailed information about a specific cat breed.
+- `POST /api/votes` - Submit a vote (up or down) for a cat image.
+- `GET /api/favourites` - Retrieve the user's favorite cat images.
+- `POST /api/favourites` - Add a cat image to the user's favorites.
 
 ## Important Notes
 
