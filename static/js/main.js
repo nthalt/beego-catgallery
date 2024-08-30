@@ -121,13 +121,6 @@ function fetchBreedInfo(breedId) {
               <div class="wiki-link"><a href="${breed.wikipedia_url}">WIKIPEDIA</a></div>
             `;
           }
-          // <span class="text-sm text-gray-500">(${breed.origin})</span>
-          // <span class="text-sm italic font-light text-gray-500">${breed.id}</span>
-
-          // <p><strong>Temperament:</strong> ${breed.temperament}</p>
-          // <p><strong>Origin:</strong> ${breed.origin}</p>
-          // <p><strong>Life Span:</strong> ${breed.life_span} years</p>
-          // <p><strong>Weight:</strong> ${breed.weight.metric} kg</p>
         })
         .catch((error) =>
           console.error("Error fetching breed details:", error)
@@ -142,14 +135,14 @@ function initCarousel() {
   let currentIndex = 0;
 
   images.forEach((img, index) => {
-    img.style.display = index === 0 ? "block" : "none"; // Show the first image
+    img.style.display = index === 0 ? "block" : "none";
   });
 
   setInterval(() => {
-    images[currentIndex].style.display = "none"; // Hide the current image
-    currentIndex = (currentIndex + 1) % images.length; // Move to the next image
-    images[currentIndex].style.display = "block"; // Show the next image
-  }, 2000); // Change image every 3 seconds
+    images[currentIndex].style.display = "none";
+    currentIndex = (currentIndex + 1) % images.length;
+    images[currentIndex].style.display = "block";
+  }, 2000);
 }
 
 // new
