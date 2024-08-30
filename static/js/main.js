@@ -156,7 +156,6 @@ function initCarousel() {
 function addFavorite(imageId) {
   const data = {
     image_id: imageId,
-    // We no longer need to send sub_id from the client
   };
 
   console.log("Sending favorite data:", data);
