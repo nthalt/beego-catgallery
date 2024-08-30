@@ -136,7 +136,7 @@ We welcome contributions to this project. To ensure a smooth collaboration, plea
 2. **Clone the Repository**: Clone your forked repository to your local machine using:
 
    ```bash
-   git clone https://github.com/username/property-manager-django.git
+   git clone https://github.com/nthalt/beego-catgallery
    ```
 
 3. **Create a Branch**: Create a new branch for your feature or bug fix:
