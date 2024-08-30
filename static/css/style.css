@@ -148,7 +148,7 @@ nav ul li a {
 .breed-image-slider {
   position: relative;
   max-width: 100%;
-  height: 300px; /* Adjust height based on your design */
+  height: 300px;
   overflow: hidden;
 }
 
@@ -158,9 +158,27 @@ nav ul li a {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures images cover the container without distortion */
+  object-fit: cover;
   transition: opacity 0.5s ease-in-out;
   border-radius: 10px;
+}
+
+.breed-description-text {
+  color: grey;
+  text-decoration: none;
+}
+
+.wiki-link a {
+  color: orangered;
+  text-decoration: none;
+}
+.wiki-link a:active {
+  color: blue;
+  text-decoration: none;
+}
+.wiki-link a:hover {
+  color: green;
+  text-decoration: none;
 }
 
 /* grid view */
@@ -168,48 +186,36 @@ nav ul li a {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
+  height: 500px;
+  overflow-y: scroll;
+  max-width: 100%;
 }
 
 .fav-cats.list-view {
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth;
-  /* gap: 10px; */
+  gap: 5px;
+  height: 500px;
+  overflow-y: scroll;
+  max-width: 100%;
+}
+
+.fav-cats.grid-view img {
+  height: 80%;
+  width: 80%;
 }
 
 .fav-cat {
   background-color: #f8f8f8;
   border-radius: 5px;
-  /* padding: 10px; */
   text-align: center;
 }
 
 .fav-cat img {
   max-width: 100%;
-  height: 150px;
   border-radius: 5px;
 }
 
-/* old */
-/* .fav-cats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-} */
-
-/*
-.fav-cats.list-view {
-  display: flex;
-  flex-direction: column;
-}
-
-.fav-cat img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 10px;
-} */
-
-/* footer section */
 footer {
   background-color: #282c34;
   color: #ffffff;

@@ -85,7 +85,8 @@
               <i class="fas fa-list"></i>
             </button>
           </div>
-          <div class="fav-cats"></div>
+          <br>
+          <div class="fav-cats grid-view"></div>
         </div>
       </section>
       <br /><br /><br />

@@ -112,14 +112,13 @@ function fetchBreedInfo(breedId) {
             const breedDescription =
               document.querySelector(".breed-description");
             breedDescription.innerHTML = `
-              <h3>${breed.name}</h3>
-              <span>
-                <span><i><weak>(${breed.origin})</weak></i></span>
-                <span><i><weak>${breed.id}</weak></i></span>
-                <span class="text-sm italic font-light text-gray-500">abys</span>
-              </span>
-              <p>${breed.description}</p>
-              <div class="footer-links"><a href="${breed.wikipedia_url}">Wikipedia</a></div>
+              <h3>
+                <span>${breed.name}</span>
+                <span class="breed-description-text"><i><bold>(${breed.origin})</bold></i></span>
+                <span class="breed-description-text"><i>${breed.id}</i></span>
+              </h3>
+              <p class="breed-description-text">${breed.description}</p>
+              <div class="wiki-link"><a href="${breed.wikipedia_url}">WIKIPEDIA</a></div>
             `;
           }
           // <span class="text-sm text-gray-500">(${breed.origin})</span>
