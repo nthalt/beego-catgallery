@@ -200,10 +200,10 @@ nav ul li a {
   max-width: 100%;
 }
 
-.fav-cats.grid-view img {
-  height: 80%;
-  width: 80%;
-}
+/* .fav-cats.grid-view img {
+  height: 50%;
+  width: 70%;
+} */
 
 .fav-cat {
   background-color: #f8f8f8;
